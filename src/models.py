@@ -27,8 +27,8 @@ class User(db.Model):
         secondaryjoin=(id == followers.c.user_to_id),
         backref="followers"
     )
-    Posts: Mapped[list["Post"]] = relationship(back_populates ="author")
-    Comment: Mapped[list["Comment"]] =relationship(back_populates="author")
+    Posts: Mapped[list["Post"]] = relationship(back_populates ="user")
+    Comment: Mapped[list["Comment"]] =relationship(back_populates="user")
     
 
 
@@ -47,7 +47,8 @@ class Post(db.Model):
     __tablename__ ="post"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id:Mapped[int]=mapped_column(ForeignKey("user.id"), nullable=False)
-    author: Mapped["User"] = relationship(back_populates="posts")
+
+    user: Mapped["User"] = relationship(back_populates="posts")
     comments: Mapped[list["Comment"]] = relationship(back_populates="post")
     media: Mapped[list["Media"]] = relationship(back_populates="post")
 
@@ -65,7 +66,8 @@ class Media(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     type:Mapped[str] =mapped_column(String(120), nullable=False)
     url: Mapped[str]=mapped_column(String(255), nullable=False)
-    post_id:Mapped[int]=mapped_column(ForeignKey("user.id"), nullable=False )
+    post_id:Mapped[int]=mapped_column(ForeignKey("post.id"), nullable=False )
+
     post:Mapped["Post"]=relationship(back_populates="media")
 
     def serialize(self):
@@ -81,8 +83,9 @@ class Comment(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     comment_text:Mapped[str] =mapped_column(String(300), nullable=False)
     author_id: Mapped[int]=mapped_column(ForeignKey("user.id"), nullable=False)
-    post_id:Mapped[int]=mapped_column(ForeignKey("user.id"), nullable=False)
-    author:Mapped["User"]= relationship(back_populates="comments")
+    post_id:Mapped[int]=mapped_column(ForeignKey("post.id"), nullable=False)
+
+    post:Mapped["User"]= relationship(back_populates="comments")
     post: Mapped["Post"]=relationship(back_populates="comments")
 
     def serialize(self):
